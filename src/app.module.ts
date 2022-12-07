@@ -1,3 +1,5 @@
+import { UserEntity } from './users/entities/user.entity';
+import { AppAsyncService, AppListener } from './app.listener';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -17,6 +19,9 @@ import { EmailModule } from './email/email.module';
 import { UploaderModule } from './uploader/uploader.module';
 import { UsersModule } from './users/users.module';
 import { LoadersModule } from './loaders/loaders.module';
+import { MercuriusExtendedDriverConfig } from './config/interfaces/mercurius-extended-driver-config.interface';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
@@ -29,11 +34,12 @@ import { LoadersModule } from './loaders/loaders.module';
       imports: [ConfigModule],
       useClass: MikroOrmConfig,
     }),
+    MikroOrmModule.forFeature([UserEntity]),
     CacheModule.registerAsync({
       isGlobal: true,
       useClass: CacheConfig,
     }),
-    GraphQLModule.forRootAsync({
+    GraphQLModule.forRootAsync<MercuriusExtendedDriverConfig>({
       imports: [ConfigModule, AuthModule, LoadersModule],
       driver: GraphQLDriver,
       useClass: GqlConfigService,
@@ -44,12 +50,18 @@ import { LoadersModule } from './loaders/loaders.module';
     EmailModule,
     UploaderModule,
     LoadersModule,
+    EventEmitterModule.forRoot(),
+    LoggerModule.forRoot({
+      pinoHttp: {},
+    }),
   ],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AuthGuard,
+    // },
+    AppAsyncService,
+    AppListener,
   ],
   controllers: [AppController],
 })

@@ -1,15 +1,12 @@
 import { MercuriusDriver } from '@nestjs/mercurius';
-import { NestFastifyApplication } from '@nestjs/platform-fastify';
+
+import { FastifyInstance } from 'fastify';
 import { printSchema } from 'graphql';
 import mercurius from 'mercurius';
 import { MercuriusExtendedDriverConfig } from '../interfaces/mercurius-extended-driver-config.interface';
 import { addPlugins } from './add-plugins.util';
 
 export class GraphQLDriver extends MercuriusDriver {
-  constructor() {
-    super();
-  }
-
   public async start(
     mercuriusOptions: MercuriusExtendedDriverConfig,
   ): Promise<void> {
@@ -31,12 +28,18 @@ export class GraphQLDriver extends MercuriusDriver {
     if (platformName !== 'fastify') {
       throw new Error(`No support for current HttpAdapter: ${platformName}`);
     }
-    const app = httpAdapter.getInstance<NestFastifyApplication>();
+    const app = httpAdapter.getInstance<FastifyInstance>();
     const plugins = options.plugins;
     delete options.plugins;
     await app.register(mercurius as any, {
       ...options,
     });
+
     await addPlugins(app, plugins);
+
+    console.log(
+      'HASCONTENTTYPEPARSER MULTIPART',
+      app.hasContentTypeParser('multipart'),
+    );
   }
 }

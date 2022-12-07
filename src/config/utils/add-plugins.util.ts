@@ -1,8 +1,8 @@
-import { NestFastifyApplication } from '@nestjs/platform-fastify';
+import { FastifyInstance } from 'fastify';
 import { MercuriusDriverPlugin } from '../interfaces/mercurius-driver-plugin.interface';
 
 export async function addPlugins(
-  app: NestFastifyApplication,
+  app: FastifyInstance,
   plugins?: MercuriusDriverPlugin[],
 ): Promise<void> {
   if (plugins && plugins.length > 0) {

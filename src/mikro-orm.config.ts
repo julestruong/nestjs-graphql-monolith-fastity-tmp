@@ -1,22 +1,17 @@
 import { LoadStrategy, Options } from '@mikro-orm/core';
+import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 
-const config: Options =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        type: 'sqlite',
-        dbName: 'test.db',
-        entities: ['dist/**/*.entity.js', 'dist/**/*.embeddable.js'],
-        entitiesTs: ['src/**/*.entity.ts', 'src/**/*.embeddable.ts'],
-        loadStrategy: LoadStrategy.JOINED,
-        allowGlobalContext: true,
-      }
-    : {
-        type: 'postgresql',
-        clientUrl: process.env.DATABASE_URL,
-        entities: ['dist/**/*.entity.js', 'dist/**/*.embeddable.js'],
-        entitiesTs: ['src/**/*.entity.ts', 'src/**/*.embeddable.ts'],
-        loadStrategy: LoadStrategy.JOINED,
-        allowGlobalContext: true,
-      };
+const config: Options = {
+  type: 'postgresql',
+  clientUrl: process.env.DATABASE_URL,
+  entities: ['dist/**/*.entity.js', 'dist/**/*.embeddable.js'],
+  entitiesTs: ['src/**/*.entity.ts', 'src/**/*.embeddable.ts'],
+  metadataProvider: TsMorphMetadataProvider,
+  loadStrategy: LoadStrategy.JOINED,
+  logger: console.log.bind(console),
+  cache: { enabled: true },
+  debug: true,
+  allowGlobalContext: true,
+};
 
 export default config;

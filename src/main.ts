@@ -11,14 +11,16 @@ import {
 } from '@nestjs/platform-fastify';
 import { UploadOptions } from 'graphql-upload';
 import mercuriusUpload from 'mercurius-upload';
+import { Logger } from 'nestjs-pino';
 import { join } from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(),
+    new FastifyAdapter({ disableRequestLogging: true }),
   );
+  app.useLogger(app.get(Logger));
   const configService = app.get(ConfigService);
   const testing = configService.get<boolean>('testing');
   app.register(fastifyCors as any, {
@@ -39,9 +41,11 @@ async function bootstrap() {
   });
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(
-    configService.get<number>('port'),
+    1234,
     testing ? '127.0.0.1' : '0.0.0.0', // because of nginx
   );
+  console.log('Server running on port ' + 1234);
+  console.log('Server running on url ' + testing ? '127.0.0.1' : '0.0.0.0');
 }
 
 bootstrap();
